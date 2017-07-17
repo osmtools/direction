@@ -1,207 +1,271 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		
-		<title>viewpoint-direction</title>
+  <head>
 
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		
-		<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
+    <title>viewpoint direction</title>
 
-		<link rel="stylesheet" href="leaflet.css"/>
-		<link rel="stylesheet" href="Control.Geocoder.css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-		<script	src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-		<script src="leaflet.js"></script>
-		<script src="leaflet.semicircle.js"></script>
-		<script src="leaflet.permalink.js"></script>
-		<script src="Control.Geocoder.js"></script>
-		<style>
-			body {
-					padding: 0;
-					margin: 0;
-			}
-			html, body, #map {
-					height: 100%;
-					width: 100%;
-			}
-		</style>
+    <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
+    <link rel="icon" type="image/png" href="images/favicon.png" sizes="16x16">
 
-	</head>
-<body>
+    <link rel="stylesheet" href="leaflet.css"/>
+    <link rel="stylesheet" href="Control.Geocoder.css" />
 
-	<div id="map"></div>
-	
-	<script>
-		alert("Achtung: BETA Version! Nicht zwingend geeignet um Direction nachzutragen! Unbedingt WIKI beachten!");
+    <script	src="jquery-3.2.1.min.js"></script>
 
-		var openTopoMap = L.tileLayer("http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {
-			minZoom: 12,
-			maxZoom: 16,
-			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-				'Kartendarstellung: © <a href="http://opentopomap.org/">OpenTopoMap</a>'
-		});
+    <script src="leaflet.js"></script>
+    <script src="leaflet.semicircle.js"></script>
+    <script src="leaflet.permalink.js"></script>
+    <script src="Control.Geocoder.js"></script>
 
-		var osmMapnik = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-			minZoom: 12,
-			maxZoom: 16,
-			attribution: 'Map data © OpenStreetMap contributors'
-		});
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+      }
+      html, body, #map {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
 
-		var osmMapnikBlackWhite = L.tileLayer("http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png", {
-			minZoom: 12,
-			maxZoom: 16,
-			attribution: 'Map data © OpenStreetMap contributors'
-		});
+  </head>
+  <body>
 
-		var baseLayers = {
-			"OpenTopoMap": openTopoMap,
-			"OpenStreetMap": osmMapnik,
-			"OpenStreetMap Grau": osmMapnikBlackWhite
-		};
+    <div id="map"></div>
 
-		var mappos = L.Permalink.getMapLocation();
-		var map = L.map('map', {layers: [openTopoMap], center: mappos.center, zoom: mappos.zoom});
-		L.Permalink.setup(map);
-		L.control.layers(baseLayers).addTo(map);
-		L.control.scale().addTo(map);
-		L.Control.geocoder().addTo(map);
+    <script>
 
-		var ovpCall = 'https://overpass-api.de/api/interpreter?data=';
+      ///
+      /// tileLayers
+      /// 
+      var openTopoMap = L.tileLayer("http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {
+        minZoom: 12,
+        maxZoom: 16,
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+          '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+          'Kartendarstellung: © <a href="http://opentopomap.org/">OpenTopoMap</a>'
+      });
 
-		ovpCall += '[out:json][timeout:20];';
-		ovpCall += '(';
-		//ovpCall += 'node["direction"]({{bbox}});';
-		ovpCall += 'node["tourism"="viewpoint"]({{bbox}});';
-		ovpCall += 'way["tourism"="viewpoint"]({{bbox}});';
-		ovpCall += ')';
-		ovpCall += ';out body center qt;';
+      var osmMapnik = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        minZoom: 12,
+        maxZoom: 16,
+        attribution: 'Map data © OpenStreetMap contributors'
+      });
 
-		var osmIds = {};
-		var radius = 150;
-		var defaultSegmentAngle=45;
+      var osmMapnikBlackWhite = L.tileLayer("http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png", {
+        minZoom: 12,
+        maxZoom: 16,
+        attribution: 'Map data © OpenStreetMap contributors'
+      });
 
-		var josm = function(id, newLayer) {
-			$.get('http://127.0.0.1:8111/load_object?new_layer='+newLayer+'&objects=n'+id);
-		}
+      var baseLayers = {
+        "OpenTopoMap": openTopoMap,
+        "OpenStreetMap": osmMapnik,
+        "OpenStreetMap Grau": osmMapnikBlackWhite
+      };
 
-		var popupContent = function(element, debuginfo){
-			
-			return 'Art der Richtung: ' + debuginfo + '<br>'
-			  + 'osm ID: n'+element.id+'<br>'
-				+ '<a href="javascript:josm('+element.id+',false)">JOSM</a> (<a href="javascript:josm('+element.id+',true)">neue Ebene</a>)'
-				+	"<pre><code>" + JSON.stringify(element.tags,null,2).toString() + "</code></pre>"
-		}
+      ///
+      /// prepare and initialize map
+      ///
+      var mappos = L.Permalink.getMapLocation();
+      var map = L.map('map', {layers: [openTopoMap], center: mappos.center, zoom: mappos.zoom});
+      L.Permalink.setup(map);
+      L.control.layers(baseLayers).addTo(map);
+      L.control.scale().addTo(map);
+      L.Control.geocoder().addTo(map);
 
-		var getDirectionFromCardinal = function(cardinal) {
-			var direction = 0;
-			switch (cardinal) {
-				case 'N': direction = 0; break;
-				case 'NNE': direction = 22; break;
-				case 'NE': direction = 45; break;
-				case 'ENE': direction = 67; break;
-				case 'E': direction = 90; break;
-				case 'ESE': direction = 112; break;
-				case 'SE': direction = 135; break;
-				case 'SSE': direction = 157; break;
-				case 'S': direction = 180; break;
-				case 'SSW': direction = 202; break;
-				case 'SW': direction = 225; break;
-				case 'WSW': direction = 247; break;
-				case 'W': direction = 270; break;
-				case 'WNW': direction = 292; break;
-				case 'NW': direction = 315; break;
-				case 'NNW': direction = 337; break;
-				default: direction = -1;
-			}					
-			return direction
-		}
-	
-		var loadPois = function() {
+      var debug = false;
+      var osmIds = {};
+      var radius = 150;
+      var defaultSegmentAngle = 45;
 
-      var mapBounds = map.getBounds()
-	
-			var overpassCall = ovpCall.replace(/{{bbox}}/g,
-				mapBounds.getSouthWest().lat + "," +
-				mapBounds.getSouthWest().lng + "," +
-				mapBounds.getNorthEast().lat + "," +
-				mapBounds.getNorthEast().lng);
+      ///
+      /// functions
+      ///
+      function callJosm(id, newLayer) {
+        $.get('http://127.0.0.1:8111/load_object?new_layer=' + newLayer + '&objects=n' + id);
+      }
 
-			$.getJSON(overpassCall, function(data) {
+      function getOsmType(element, abbr) {
+        abbr = abbr || true;
+        var osmType;
+        switch (element.type) {
+          case 'node':
+            osmType = abbr ? 'n' : 'node';
+            break;
+          case 'way':
+            osmType = abbr ? 'w' : 'way';
+            break;
+        }
+        return osmType;
+      }
 
-				$.each(data.elements, function(index, element) {
-					if ("tags" in element) {
-						if (!(element.id in osmIds)) {
-							osmIds[element.id] = true;
-							var lat, lon;
-								if (element.type == "node") {
-									lat = element.lat;
-									lon = element.lon;
-								} else if (element.type == "way") {
-									lat = element.center.lat;
-									lon = element.center.lon;
-							}
-								
-							if ("direction" in element.tags) {
+      function popupContent(element, debuginfo) {
+        return debug ? ('Art der Richtung: ' + debuginfo + '<br>') : ''
+          + 'osm ID: <a href="https://www.openstreetmap.org/' + getOsmType(element, false) + '/' + element.id + '">' + getOsmType(element) + element.id + '</a><br>'
+          + '<a href="javascript:callJosm(' + element.id + ',false)">JOSM</a> (<a href="javascript:callJosm(' + element.id + ',true)">neue Ebene</a>)'
+          + "<pre><code>" + JSON.stringify(element.tags, null, 2).toString() + "</code></pre>";
+      }
 
-								var directions = element.tags.direction.split(';');
-								
-								directions.forEach(function(direction) {
-									if (/0-359|0-360/.test(direction)) {
-										L.circle([lat, lon], {radius: radius, color: "#008000", fillColor: "#008000", fillOpacity: 0.6}).bindPopup(popupContent(element, '360°')).addTo(map);
+      function getDirectionFromCardinal(cardinal) {
+        var direction = 0;
+        switch (cardinal) {
+          case 'N':
+            direction = 0;
+            break;
+          case 'NNE':
+            direction = 22;
+            break;
+          case 'NE':
+            direction = 45;
+            break;
+          case 'ENE':
+            direction = 67;
+            break;
+          case 'E':
+            direction = 90;
+            break;
+          case 'ESE':
+            direction = 112;
+            break;
+          case 'SE':
+            direction = 135;
+            break;
+          case 'SSE':
+            direction = 157;
+            break;
+          case 'S':
+            direction = 180;
+            break;
+          case 'SSW':
+            direction = 202;
+            break;
+          case 'SW':
+            direction = 225;
+            break;
+          case 'WSW':
+            direction = 247;
+            break;
+          case 'W':
+            direction = 270;
+            break;
+          case 'WNW':
+            direction = 292;
+            break;
+          case 'NW':
+            direction = 315;
+            break;
+          case 'NNW':
+            direction = 337;
+            break;
+          default:
+            direction = -1;
+        }
+        return direction;
+      }
 
-									} else if (/\d+-\d+/.test(direction)) {
-										var angles = direction.split('-');
-										var startAngle=parseInt(angles[0]);
-										var stopAngle=parseInt(angles[1]);
-										var size=stopAngle-startAngle+(stopAngle < startAngle ? 360 : 0);		
-										var segmentDirection = (startAngle + stopAngle + (stopAngle < startAngle ? 360 : 0)) / 2;
-										L.semiCircle([lat, lon], {radius: radius, color: "#008000", fillColor: "#008000", fillOpacity: 0.6}).setDirection(segmentDirection, size).bindPopup(popupContent(element, 'x-y: startAngle(' + startAngle + ') - stopAngle(' + stopAngle + ') - direction(' + segmentDirection + ') - size(' + size + ')')).addTo(map);						  
-										
-									} else if (/\d+/.test(direction)) {
-										L.semiCircle([lat, lon], {radius: radius, color: "#FFA500", fillColor: "#FFA500", fillOpacity: 0.6}).setDirection(parseInt(direction), defaultSegmentAngle).bindPopup(popupContent(element, 'x: direction(' + direction + '), size(' +defaultSegmentAngle+')')).addTo(map);
-										
-									} else if (/[NESW]{1,3}/.test(direction)) {
-										var circleDirection = getDirectionFromCardinal(direction);			
-										L.semiCircle([lat, lon], {radius: radius, color: "#FFA500", fillColor: "#FFA500", fillOpacity: 0.6}).setDirection(circleDirection, defaultSegmentAngle).bindPopup(popupContent(element, 'NEWS: direction('+circleDirection+')')).addTo(map);
+      ///
+      /// overpass Query
+      ///
+      function getOverpassQuery(mapBounds) {
 
-									} else if (/[NESW]{1,3}-[NESW]{1,3}/.test(direction)) {
-										var cardinals = direction.split('-');
-										var startAngle=parseInt(getDirectionFromCardinal(cardinals[0]));
-										var stopAngle=parseInt(getDirectionFromCardinal(cardinals[1]));
-										var size=stopAngle-startAngle+(stopAngle < startAngle ? 360 : 0);		
-										var segmentDirection = (startAngle + stopAngle + (stopAngle < startAngle ? 360 : 0)) / 2;
-										L.semiCircle([lat, lon], {radius: radius, color: "#008000", fillColor: "#008000", fillOpacity: 0.6}).setDirection(segmentDirection, size).bindPopup(popupContent(element, 'NESW-NESW: startAngle(' + startAngle + ') - stopAngle(' + stopAngle + ') - direction(' + segmentDirection + ') - size(' + size + ')')).addTo(map);						  
-										
-									} else {
-										L.circle([lat, lon], {radius: radius, color: "#A52A2A", fillColor: "#A52A2A"}).bindPopup(popupContent(element, "direction, but not parsable, could also be false-positive!")).addTo(map);
+        var overpassUrl = 'https://overpass-api.de/api/interpreter?data=';
+        overpassUrl += '[out:json][timeout:20];';
+        overpassUrl += '(';
+        //overpassUrl += 'node["direction"]({{bbox}});';
+        overpassUrl += 'node["tourism"="viewpoint"]({{bbox}});';
+        overpassUrl += 'way["tourism"="viewpoint"]({{bbox}});';
+        overpassUrl += ')';
+        overpassUrl += ';out body center qt;';
 
-									}
-								});
-								
-							} else {
-								L.circle([lat, lon], {radius: radius, color: "#ff0000", fillColor: "#ff0000"}).bindPopup(popupContent(element, "no direction")).addTo(map);
+        var overpassQuery = overpassUrl.replace(/{{bbox}}/g,
+          mapBounds.getSouthWest().lat + "," +
+          mapBounds.getSouthWest().lng + "," +
+          mapBounds.getNorthEast().lat + "," +
+          mapBounds.getNorthEast().lng);
 
-							}
-							
-						}
-					}
-				});
-				
-			});
-		};
+        return overpassQuery;
+      }
 
-		var moveEnd = function() {
-			loadPois();
-		};
-		
-		map.on('moveend', moveEnd);
+      //
+      //
+      //
+      function loadPois() {
 
-		loadPois();
+        $.getJSON(getOverpassQuery(map.getBounds()), function (data) {
 
-	</script>
-</body>
+          $.each(data.elements, function (index, element) {
+            if ('tags' in element) {
+              if (!(element.id in osmIds)) {
+                osmIds[element.id] = true;
+                var lat, lon;
+                if (element.type === 'node') {
+                  lat = element.lat;
+                  lon = element.lon;
+                } else if (element.type === 'way') {
+                  lat = element.center.lat;
+                  lon = element.center.lon;
+                }
+
+                if ('direction' in element.tags) {
+
+                  var directions = element.tags.direction.split(';');
+
+                  directions.forEach(function (direction) {
+                    if (/0-359|0-360/.test(direction)) {
+                      L.circle([lat, lon], {radius: radius, color: "#008000", fillColor: "#008000", fillOpacity: 0.6}).bindPopup(popupContent(element, '360°')).addTo(map);
+
+                    } else if (/\d+-\d+/.test(direction)) {
+                      var angles = direction.split('-');
+                      var startAngle = parseInt(angles[0]);
+                      var stopAngle = parseInt(angles[1]);
+                      var size = stopAngle - startAngle + (stopAngle < startAngle ? 360 : 0);
+                      var segmentDirection = (startAngle + stopAngle + (stopAngle < startAngle ? 360 : 0)) / 2;
+                      L.semiCircle([lat, lon], {radius: radius, color: "#008000", fillColor: "#008000", fillOpacity: 0.6}).setDirection(segmentDirection, size).bindPopup(popupContent(element, 'x-y: startAngle(' + startAngle + ') - stopAngle(' + stopAngle + ') - direction(' + segmentDirection + ') - size(' + size + ')')).addTo(map);
+
+                    } else if (/\d+/.test(direction)) {
+                      L.semiCircle([lat, lon], {radius: radius, color: "#FFA500", fillColor: "#FFA500", fillOpacity: 0.6}).setDirection(parseInt(direction), defaultSegmentAngle).bindPopup(popupContent(element, 'x: direction(' + direction + '), size(' + defaultSegmentAngle + ')')).addTo(map);
+
+                    } else if (/[NESW]{1,3}/.test(direction)) {
+                      var circleDirection = getDirectionFromCardinal(direction);
+                      L.semiCircle([lat, lon], {radius: radius, color: "#FFA500", fillColor: "#FFA500", fillOpacity: 0.6}).setDirection(circleDirection, defaultSegmentAngle).bindPopup(popupContent(element, 'NEWS: direction(' + circleDirection + ')')).addTo(map);
+
+                    } else if (/[NESW]{1,3}-[NESW]{1,3}/.test(direction)) {
+                      var cardinals = direction.split('-');
+                      var startAngle = parseInt(getDirectionFromCardinal(cardinals[0]));
+                      var stopAngle = parseInt(getDirectionFromCardinal(cardinals[1]));
+                      var size = stopAngle - startAngle + (stopAngle < startAngle ? 360 : 0);
+                      var segmentDirection = (startAngle + stopAngle + (stopAngle < startAngle ? 360 : 0)) / 2;
+                      L.semiCircle([lat, lon], {radius: radius, color: "#008000", fillColor: "#008000", fillOpacity: 0.6}).setDirection(segmentDirection, size).bindPopup(popupContent(element, 'NESW-NESW: startAngle(' + startAngle + ') - stopAngle(' + stopAngle + ') - direction(' + segmentDirection + ') - size(' + size + ')')).addTo(map);
+
+                    } else {
+                      L.circle([lat, lon], {radius: radius, color: "#AD00AD", fillColor: "#AD00AD"}).bindPopup(popupContent(element, "direction, but not parsable, could also be false-positive!")).addTo(map);
+
+                    }
+                  });
+
+                } else {
+                  L.circle([lat, lon], {radius: radius, color: "#ff0000", fillColor: "#ff0000"}).bindPopup(popupContent(element, "no direction")).addTo(map);
+
+                }
+              }
+            }
+          });
+        });
+      }      ;
+
+      var moveEnd = function() {
+        loadPois();
+      };
+
+      map.on('moveend', moveEnd);
+
+      loadPois();
+
+    </script>
+  </body>
 </html>
 
