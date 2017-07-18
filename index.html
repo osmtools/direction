@@ -105,7 +105,7 @@
 
       function popupContent(element, debuginfo) {
         return debug ? ('Art der Richtung: ' + debuginfo + '<br>') : ''
-          + 'osm ID: <a href="https://www.openstreetmap.org/' + getOsmType(element, false) + '/' + element.id + '">' + getOsmType(element) + element.id + '</a><br>'
+          + 'osm ID: <a href="https://www.openstreetmap.org/' + getOsmType(element, true) + '/' + element.id + '">' + getOsmType(element, false) + element.id + '</a><br>'
           + '<a href="javascript:callJosm(' + element.id + ',false)">JOSM</a> (<a href="javascript:callJosm(' + element.id + ',true)">neue Ebene</a>)'
           + "<pre><code>" + JSON.stringify(element.tags, null, 2).toString() + "</code></pre>";
       }
