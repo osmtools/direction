@@ -212,13 +212,13 @@
 
                 if ('direction' in element.tags) {
 
-                  var directions = element.tags.direction.split(';');
+                  var directions = element.tags.direction.split(/; ?/);
 
                   directions.forEach(function (direction) {
-                    if (/0-359|0-360/.test(direction)) {
+                    if (/^(0-359|0-360)$/.test(direction)) {
                       L.circle([lat, lon], {radius: radius, color: "#008000", fillColor: "#008000", fillOpacity: 0.6}).bindPopup(popupContent(element, '360°')).addTo(map);
 
-                    } else if (/\d+-\d+/.test(direction)) {
+                    } else if (/^\d{1,3}-\d{1,3}$/.test(direction)) {
                       var angles = direction.split('-');
                       var startAngle = parseInt(angles[0]);
                       var stopAngle = parseInt(angles[1]);
@@ -226,10 +226,10 @@
                       var segmentDirection = (startAngle + stopAngle + (stopAngle < startAngle ? 360 : 0)) / 2;
                       L.semiCircle([lat, lon], {radius: radius, color: "#008000", fillColor: "#008000", fillOpacity: 0.6}).setDirection(segmentDirection, size).bindPopup(popupContent(element, 'x-y: startAngle(' + startAngle + ') - stopAngle(' + stopAngle + ') - direction(' + segmentDirection + ') - size(' + size + ')')).addTo(map);
 
-                    } else if (/\d+/.test(direction)) {
+                    } else if (/^\d{1,3}$/.test(direction)) {
                       L.semiCircle([lat, lon], {radius: radius, color: "#FFA500", fillColor: "#FFA500", fillOpacity: 0.6}).setDirection(parseInt(direction), defaultSegmentAngle).bindPopup(popupContent(element, 'x: direction(' + direction + '), size(' + defaultSegmentAngle + ')')).addTo(map);
 
-                    } else if (/[NESW]{1,3}/.test(direction)) {
+                    } else if (/^[NESW]{1,3}$/.test(direction)) {
                       var circleDirection = getDirectionFromCardinal(direction);
                       L.semiCircle([lat, lon], {radius: radius, color: "#FFA500", fillColor: "#FFA500", fillOpacity: 0.6}).setDirection(circleDirection, defaultSegmentAngle).bindPopup(popupContent(element, 'NEWS: direction(' + circleDirection + ')')).addTo(map);
 
