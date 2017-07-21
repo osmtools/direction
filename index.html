@@ -85,28 +85,19 @@
       ///
       /// functions
       ///
-      function callJosm(id, newLayer) {
-        $.get('http://127.0.0.1:8111/load_object?new_layer=' + newLayer + '&objects=n' + id);
+      function callJosm(type, id, newLayer) {
+        $.get('http://127.0.0.1:8111/load_object?new_layer=' + newLayer + '&objects=' + type + id);
       }
 
       function getOsmType(element, abbr) {
-        abbr = abbr || false;
-        var osmType;
-        switch (element.type) {
-          case 'node':
-            osmType = abbr ? 'n' : 'node';
-            break;
-          case 'way':
-            osmType = abbr ? 'w' : 'way';
-            break;
-        }
-        return osmType;
+        abbr = abbr === undefined ? false : abbr;
+        return abbr ? element.type.charAt(0) : element.type;
       }
 
       function popupContent(element, debuginfo) {
         return debug ? ('Art der Richtung: ' + debuginfo + '<br>') : ''
-          + 'osm ID: <a href="https://www.openstreetmap.org/' + getOsmType(element, false) + '/' + element.id + '">' + getOsmType(element, true) + element.id + '</a><br>'
-          + '<a href="javascript:callJosm(' + element.id + ',false)">JOSM</a> (<a href="javascript:callJosm(' + element.id + ',true)">neue Ebene</a>)'
+          + 'osm ID: <a href="https://www.openstreetmap.org/' + getOsmType(element) + '/' + element.id + '">' + getOsmType(element, true) + element.id + '</a><br>'
+          + '<a href="javascript:callJosm(' + getOsmType(element,true) + element.id + ',false)">JOSM</a> (<a href="javascript:callJosm(' + getOsmType(element, true) + element.id + ',true)">neue Ebene</a>)'
           + "<pre><code>" + JSON.stringify(element.tags, null, 2).toString() + "</code></pre>";
       }
 
@@ -255,9 +246,10 @@
             }
           });
         });
-      }      ;
+      }
+      ;
 
-      var moveEnd = function() {
+      var moveEnd = function () {
         loadPois();
       };
 
