@@ -169,6 +169,8 @@
         //overpassUrl += 'node["direction"]({{bbox}});';
         overpassUrl += 'node["tourism"="viewpoint"]({{bbox}});';
         overpassUrl += 'way["tourism"="viewpoint"]({{bbox}});';
+        overpassUrl += 'node["amenity"="bench"][direction]({{bbox}});';
+        overpassUrl += 'node["amenity"="hunting_stand"][direction]({{bbox}});';
         overpassUrl += ')';
         overpassUrl += ';out body center qt;';
 
