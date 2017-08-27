@@ -70,11 +70,13 @@
       var viewpoints = new L.layerGroup();
       var benchs = new L.layerGroup();
       var huntingstands = new L.layerGroup();
+      var caveentrances = new L.layerGroup();
       
       var overlayLayers = {
         "viewpoint": viewpoints,
         "bench": benchs,
-        "hunting stand": huntingstands
+        "hunting stand": huntingstands,
+        "cave entrance": caveentrances
       };
       ///
       /// prepare and initialize map
@@ -177,13 +179,14 @@
       function getOverpassQuery(mapBounds) {
 
         var overpassUrl = 'https://overpass-api.de/api/interpreter?data=';
-        overpassUrl += '[out:json][timeout:20];';
+        overpassUrl += '[out:json][timeout:30];';
         overpassUrl += '(';
         //overpassUrl += 'node["direction"]({{bbox}});';
         overpassUrl += 'node["tourism"="viewpoint"]({{bbox}});';
         overpassUrl += 'way["tourism"="viewpoint"]({{bbox}});';
         overpassUrl += 'node["amenity"="bench"]({{bbox}});';
         overpassUrl += 'node["amenity"="hunting_stand"]({{bbox}});';
+        overpassUrl += 'node["natural"="cave_entrance"]({{bbox}});';
         overpassUrl += ')';
         overpassUrl += ';out body center qt;';
 
@@ -220,6 +223,7 @@
                 if (element.tags.tourism==="viewpoint") layer=viewpoints;
                 if (element.tags.amenity==="bench") layer=benchs;
                 if (element.tags.amenity==="hunting_stand") layer=huntingstands;
+                if (element.tags.natural==="cave_entrance") layer=caveentrances;
                 
                 if ('direction' in element.tags) {
 

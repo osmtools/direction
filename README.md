@@ -5,6 +5,7 @@ shows and draws the [direction](https://wiki.openstreetmap.org/wiki/Key:directio
 * [tourism=viewpoint](https://wiki.openstreetmap.org/wiki/Tag:tourism%3Dviewpoint)
 * [amenity=bench](https://wiki.openstreetmap.org/wiki/Tag:amenity%3Dbench)
 * [amenity=hunting_stand](https://wiki.openstreetmap.org/wiki/Tag:amenity%3Dhunting_stand)
+* [natural=cave_entrance](https://wiki.openstreetmap.org/wiki/Tag:natural%3Dcave_entrance)
 
 colours:
 
