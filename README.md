@@ -1,6 +1,10 @@
 # direction
 
-shows and draws the [direction](https://wiki.openstreetmap.org/wiki/Key:direction) of [tourism=viewpoint](https://wiki.openstreetmap.org/wiki/Tag:tourism%3Dviewpoint)
+shows and draws the [direction](https://wiki.openstreetmap.org/wiki/Key:direction) of 
+
+* [tourism=viewpoint](https://wiki.openstreetmap.org/wiki/Tag:tourism%3Dviewpoint)
+* [amenity=bench](https://wiki.openstreetmap.org/wiki/Tag:amenity%3Dbench)
+* [amenity=hunting_stand](https://wiki.openstreetmap.org/wiki/Tag:amenity%3Dhunting_stand)
 
 colours:
 
