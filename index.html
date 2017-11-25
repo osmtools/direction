@@ -40,7 +40,7 @@
 
       ///
       /// tileLayers
-      /// 
+      ///
       var openTopoMap = L.tileLayer("http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {
         minZoom: 12,
         maxZoom: 16,
@@ -71,7 +71,7 @@
       var benchs = new L.layerGroup();
       var huntingstands = new L.layerGroup();
       var caveentrances = new L.layerGroup();
-      
+
       var overlayLayers = {
         "viewpoint": viewpoints,
         "bench": benchs,
@@ -83,8 +83,8 @@
       ///
       var mappos = L.Permalink.getMapLocation();
       var map = L.map('map', {
-        layers: [openTopoMap, viewpoints], 
-        center: mappos.center, 
+        layers: [openTopoMap, viewpoints],
+        center: mappos.center,
         zoom: mappos.zoom
       });
       L.Permalink.setup(map);
@@ -208,7 +208,7 @@
 
           $.each(data.elements, function (index, element) {
             if ('tags' in element) {
-              if (!(element.id in osmIds)) {                
+              if (!(element.id in osmIds)) {
                 osmIds[element.id] = true;
                 var lat, lon;
                 if (element.type === 'node') {
@@ -219,53 +219,58 @@
                   lon = element.center.lon;
                 }
 
-                var layer=map;
-                if (element.tags.tourism==="viewpoint") layer=viewpoints;
-                if (element.tags.amenity==="bench") layer=benchs;
-                if (element.tags.amenity==="hunting_stand") layer=huntingstands;
-                if (element.tags.natural==="cave_entrance") layer=caveentrances;
-                
-                if ('direction' in element.tags) {
+                var layers = new Array();
+                if (element.tags.tourism==="viewpoint") layers.push(viewpoints);
+                if (element.tags.amenity==="bench") layers.push(benchs);
+                if (element.tags.amenity==="hunting_stand") layers.push(huntingstands);
+                if (element.tags.natural==="cave_entrance") layers.push(caveentrances);
 
-                  var directions = element.tags.direction.split(/; ?/);
+                if (layers.length==0) layers.push(map);
 
-                  directions.forEach(function (direction) {
-                    if (/^(0-359|0-360)$/.test(direction)) {
-                      L.circle([lat, lon], {radius: radius, color: "#008000", fillColor: "#008000", fillOpacity: 0.6}).bindPopup(popupContent(element, '360°')).addTo(layer);
+                layers.forEach(function (layer) {
 
-                    } else if (/^\d{1,3}-\d{1,3}$/.test(direction)) {
-                      var angles = direction.split('-');
-                      var startAngle = parseInt(angles[0]);
-                      var stopAngle = parseInt(angles[1]);
-                      var size = stopAngle - startAngle + (stopAngle < startAngle ? 360 : 0);
-                      var segmentDirection = (startAngle + stopAngle + (stopAngle < startAngle ? 360 : 0)) / 2;
-                      L.semiCircle([lat, lon], {radius: radius, color: "#008000", fillColor: "#008000", fillOpacity: 0.6}).setDirection(segmentDirection, size).bindPopup(popupContent(element, 'x-y: startAngle(' + startAngle + ') - stopAngle(' + stopAngle + ') - direction(' + segmentDirection + ') - size(' + size + ')')).addTo(layer);
+                  if ('direction' in element.tags) {
 
-                    } else if (/^\d{1,3}$/.test(direction)) {
-                      L.semiCircle([lat, lon], {radius: radius, color: "#FFA500", fillColor: "#FFA500", fillOpacity: 0.6}).setDirection(parseInt(direction), defaultSegmentAngle).bindPopup(popupContent(element, 'x: direction(' + direction + '), size(' + defaultSegmentAngle + ')')).addTo(layer);
+                    var directions = element.tags.direction.split(/; ?/);
 
-                    } else if (/^[NESW]{1,3}$/.test(direction)) {
-                      var circleDirection = getDirectionFromCardinal(direction);
-                      L.semiCircle([lat, lon], {radius: radius, color: "#FFA500", fillColor: "#FFA500", fillOpacity: 0.6}).setDirection(circleDirection, defaultSegmentAngle).bindPopup(popupContent(element, 'NEWS: direction(' + circleDirection + ')')).addTo(layer);
+                    directions.forEach(function (direction) {
+                      if (/^(0-359|0-360)$/.test(direction)) {
+                        L.circle([lat, lon], {radius: radius, color: "#008000", fillColor: "#008000", fillOpacity: 0.6}).bindPopup(popupContent(element, '360°')).addTo(layer);
 
-                    } else if (/[NESW]{1,3}-[NESW]{1,3}/.test(direction)) {
-                      var cardinals = direction.split('-');
-                      var startAngle = parseInt(getDirectionFromCardinal(cardinals[0]));
-                      var stopAngle = parseInt(getDirectionFromCardinal(cardinals[1]));
-                      var size = stopAngle - startAngle + (stopAngle < startAngle ? 360 : 0);
-                      var segmentDirection = (startAngle + stopAngle + (stopAngle < startAngle ? 360 : 0)) / 2;
-                      L.semiCircle([lat, lon], {radius: radius, color: "#008000", fillColor: "#008000", fillOpacity: 0.6}).setDirection(segmentDirection, size).bindPopup(popupContent(element, 'NESW-NESW: startAngle(' + startAngle + ') - stopAngle(' + stopAngle + ') - direction(' + segmentDirection + ') - size(' + size + ')')).addTo(layer);
+                      } else if (/^\d{1,3}-\d{1,3}$/.test(direction)) {
+                        var angles = direction.split('-');
+                        var startAngle = parseInt(angles[0]);
+                        var stopAngle = parseInt(angles[1]);
+                        var size = stopAngle - startAngle + (stopAngle < startAngle ? 360 : 0);
+                        var segmentDirection = (startAngle + stopAngle + (stopAngle < startAngle ? 360 : 0)) / 2;
+                        L.semiCircle([lat, lon], {radius: radius, color: "#008000", fillColor: "#008000", fillOpacity: 0.6}).setDirection(segmentDirection, size).bindPopup(popupContent(element, 'x-y: startAngle(' + startAngle + ') - stopAngle(' + stopAngle + ') - direction(' + segmentDirection + ') - size(' + size + ')')).addTo(layer);
 
-                    } else {
-                      L.circle([lat, lon], {radius: radius, color: "#AD00AD", fillColor: "#AD00AD"}).bindPopup(popupContent(element, "direction, but not parsable, could also be false-positive!")).addTo(layer);
+                      } else if (/^\d{1,3}$/.test(direction)) {
+                        L.semiCircle([lat, lon], {radius: radius, color: "#FFA500", fillColor: "#FFA500", fillOpacity: 0.6}).setDirection(parseInt(direction), defaultSegmentAngle).bindPopup(popupContent(element, 'x: direction(' + direction + '), size(' + defaultSegmentAngle + ')')).addTo(layer);
 
-                    }
-                  });
+                      } else if (/^[NESW]{1,3}$/.test(direction)) {
+                        var circleDirection = getDirectionFromCardinal(direction);
+                        L.semiCircle([lat, lon], {radius: radius, color: "#FFA500", fillColor: "#FFA500", fillOpacity: 0.6}).setDirection(circleDirection, defaultSegmentAngle).bindPopup(popupContent(element, 'NEWS: direction(' + circleDirection + ')')).addTo(layer);
 
-                } else {
-                  L.circle([lat, lon], {radius: radius, color: "#ff0000", fillColor: "#ff0000"}).bindPopup(popupContent(element, "no direction")).addTo(layer);
+                      } else if (/[NESW]{1,3}-[NESW]{1,3}/.test(direction)) {
+                        var cardinals = direction.split('-');
+                        var startAngle = parseInt(getDirectionFromCardinal(cardinals[0]));
+                        var stopAngle = parseInt(getDirectionFromCardinal(cardinals[1]));
+                        var size = stopAngle - startAngle + (stopAngle < startAngle ? 360 : 0);
+                        var segmentDirection = (startAngle + stopAngle + (stopAngle < startAngle ? 360 : 0)) / 2;
+                        L.semiCircle([lat, lon], {radius: radius, color: "#008000", fillColor: "#008000", fillOpacity: 0.6}).setDirection(segmentDirection, size).bindPopup(popupContent(element, 'NESW-NESW: startAngle(' + startAngle + ') - stopAngle(' + stopAngle + ') - direction(' + segmentDirection + ') - size(' + size + ')')).addTo(layer);
 
-                }
+                      } else {
+                        L.circle([lat, lon], {radius: radius, color: "#AD00AD", fillColor: "#AD00AD"}).bindPopup(popupContent(element, "direction, but not parsable, could also be false-positive!")).addTo(layer);
+
+                      }
+                    });
+
+                  } else {
+                    L.circle([lat, lon], {radius: radius, color: "#ff0000", fillColor: "#ff0000"}).bindPopup(popupContent(element, "no direction")).addTo(layer);
+
+                  }
+                });
               }
             }
           });
@@ -284,4 +289,3 @@
     </script>
   </body>
 </html>
-
