@@ -4,8 +4,11 @@
 
     <title>direction</title>
 
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="keywords" content="direction,viewpoint,bench,openstreetmap,osm" />
+    <meta name="description" content="shows the direction of osm objects as semicircle" />
+    <meta name="author" content="Harald Hartmann" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
     <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
     <link rel="icon" type="image/png" href="images/favicon.png" sizes="16x16">
@@ -87,10 +90,11 @@
         center: mappos.center,
         zoom: mappos.zoom
       });
+      //map.locate({setView: true, maxZoom: 15});
       L.Permalink.setup(map);
       L.control.layers(baseLayers, overlayLayers, {collapsed: false}).addTo(map);
       L.control.scale().addTo(map);
-      L.Control.geocoder().addTo(map);
+      L.Control.geocoder({position: 'topleft'}).addTo(map);
 
       var debug = false;
       var osmIds = {};
