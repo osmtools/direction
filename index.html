@@ -74,12 +74,14 @@
       var benchs = new L.layerGroup();
       var huntingstands = new L.layerGroup();
       var caveentrances = new L.layerGroup();
+      var advertising = new L.layerGroup();
 
       var overlayLayers = {
         "viewpoint": viewpoints,
         "bench": benchs,
         "hunting stand": huntingstands,
-        "cave entrance": caveentrances
+        "cave entrance": caveentrances,
+        "advertising": advertising
       };
       ///
       /// prepare and initialize map
@@ -191,6 +193,7 @@
         overpassUrl += 'node["amenity"="bench"]({{bbox}});';
         overpassUrl += 'node["amenity"="hunting_stand"]({{bbox}});';
         overpassUrl += 'node["natural"="cave_entrance"]({{bbox}});';
+        overpassUrl += 'node["advertising"]({{bbox}});'
         overpassUrl += ')';
         overpassUrl += ';out body center qt;';
 
@@ -228,6 +231,7 @@
                 if (element.tags.amenity==="bench") layers.push(benchs);
                 if (element.tags.amenity==="hunting_stand") layers.push(huntingstands);
                 if (element.tags.natural==="cave_entrance") layers.push(caveentrances);
+                if (element.tags.advertising) layers.push(advertising);
 
                 if (layers.length==0) layers.push(map);
 
