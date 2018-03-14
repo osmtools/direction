@@ -6,7 +6,9 @@ shows and draws the [direction](https://wiki.openstreetmap.org/wiki/Key:directio
 * [amenity=bench](https://wiki.openstreetmap.org/wiki/Tag:amenity%3Dbench)
 * [amenity=hunting_stand](https://wiki.openstreetmap.org/wiki/Tag:amenity%3Dhunting_stand)
 * [natural=cave_entrance](https://wiki.openstreetmap.org/wiki/Tag:natural%3Dcave_entrance)
+* [man_made=adit](https://wiki.openstreetmap.org/wiki/Tag:man_made%3Dadit)
 * [advertising](https://wiki.openstreetmap.org/wiki/Key:advertising)
+* [traffic_sign](https://wiki.openstreetmap.org/wiki/Key:traffic_sign) (prefiltered to direction!=forward/backward)
 
 colours:
 

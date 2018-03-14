@@ -73,15 +73,17 @@
       var viewpoints = new L.layerGroup();
       var benchs = new L.layerGroup();
       var huntingstands = new L.layerGroup();
-      var caveentrances = new L.layerGroup();
+      var entrances = new L.layerGroup();
       var advertising = new L.layerGroup();
+      var trafficsign = new L.layerGroup();
 
       var overlayLayers = {
         "viewpoint": viewpoints,
         "bench": benchs,
         "hunting stand": huntingstands,
-        "cave entrance": caveentrances,
-        "advertising": advertising
+        "entrance (cave, adit)": entrances,
+        "advertising": advertising,
+        "traffic sign": trafficsign
       };
       ///
       /// prepare and initialize map
@@ -193,7 +195,9 @@
         overpassUrl += 'node["amenity"="bench"]({{bbox}});';
         overpassUrl += 'node["amenity"="hunting_stand"]({{bbox}});';
         overpassUrl += 'node["natural"="cave_entrance"]({{bbox}});';
+        overpassUrl += 'node["man_made"="adit"]({{bbox}});';
         overpassUrl += 'node["advertising"]({{bbox}});'
+        overpassUrl += 'node[traffic_sign][direction][direction!~"^(forward|backward)$"]({{bbox}});'
         overpassUrl += ')';
         overpassUrl += ';out body center qt;';
 
@@ -230,8 +234,10 @@
                 if (element.tags.tourism==="viewpoint") layers.push(viewpoints);
                 if (element.tags.amenity==="bench") layers.push(benchs);
                 if (element.tags.amenity==="hunting_stand") layers.push(huntingstands);
-                if (element.tags.natural==="cave_entrance") layers.push(caveentrances);
+                if (element.tags.natural==="cave_entrance") layers.push(entrances);
+                if (element.tags.man_made==="adit") layers.push(entrances);
                 if (element.tags.advertising) layers.push(advertising);
+                if (element.tags.traffic_sign) layers.push(trafficsign);
 
                 if (layers.length==0) layers.push(map);
 
