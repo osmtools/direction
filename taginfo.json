@@ -1,0 +1,41 @@
+{
+  "data_format": 1,
+  "data_url": "https://raw.githubusercontent.com/osmtools/direction/master/taginfo.json",
+  "project": {
+    "name": "direction",
+    "description": "displays the direction value (angles and cardinal only) as a semicircle of different keys",
+    "project_url": "https://osmtools.github.io/direction/",
+    "doc_url": "https://github.com/osmtools/direction/#readme",
+    "icon_url": "https://osmtools.github.io'/direction/images/favicon.png",
+    "contact_name": "Harald Hartmann",
+    "contact_email": "osm@haraldhartmann.de"
+  },
+  "tags": [
+     {
+       "key": "advertising"
+     },
+     {
+       "key": "amenity",
+       "value": "bench"
+     },
+     {
+       "key": "amenity",
+       "value": "hunting_stand"
+     },
+     {
+       "key": "man_made",
+       "value": "adit"
+     },
+     {
+       "key": "natural",
+       "value": "cave_entrance"
+     },
+     {
+       "key": "tourism",
+       "value": "viewpoint"
+     },
+     {
+       "key": "traffic_sign"
+     }
+   ]
+}
