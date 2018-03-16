@@ -12,30 +12,40 @@
   },
   "tags": [
      {
-       "key": "advertising"
+       "key": "advertising",
+       "object_types": ["node"]
      },
      {
        "key": "amenity",
-       "value": "bench"
+       "value": "bench",
+       "object_types": ["node"]
+     },
+     {
+       "key": "direction"
      },
      {
        "key": "amenity",
-       "value": "hunting_stand"
+       "value": "hunting_stand",
+       "object_types": ["node"]
      },
      {
        "key": "man_made",
-       "value": "adit"
+       "value": "adit",
+       "object_types": ["node"]
      },
      {
        "key": "natural",
-       "value": "cave_entrance"
+       "value": "cave_entrance",
+       "object_types": ["node"]
      },
      {
        "key": "tourism",
-       "value": "viewpoint"
+       "value": "viewpoint",
+       "object_types": ["node", "area"]
      },
      {
-       "key": "traffic_sign"
+       "key": "traffic_sign",
+       "object_types": ["node"]
      }
    ]
 }
