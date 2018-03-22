@@ -74,6 +74,7 @@
       var benchs = new L.layerGroup();
       var huntingstands = new L.layerGroup();
       var entrances = new L.layerGroup();
+      var surveillances = new L.layerGroup();
       var advertising = new L.layerGroup();
       var trafficsign = new L.layerGroup();
 
@@ -82,6 +83,7 @@
         "bench": benchs,
         "hunting stand": huntingstands,
         "entrance (cave, adit)": entrances,
+        "surveillance": surveillances,
         "advertising": advertising,
         "traffic sign": trafficsign
       };
@@ -102,7 +104,7 @@
 
       var debug = false;
       var osmIds = {};
-      var radius = 150;
+      var defaultRadius = 150;
       var defaultSegmentAngle = 45;
 
       ///
@@ -196,8 +198,9 @@
         overpassUrl += 'node["amenity"="hunting_stand"]({{bbox}});';
         overpassUrl += 'node["natural"="cave_entrance"]({{bbox}});';
         overpassUrl += 'node["man_made"="adit"]({{bbox}});';
-        overpassUrl += 'node["advertising"]({{bbox}});'
-        overpassUrl += 'node[traffic_sign][direction][direction!~"^(forward|backward)$"]({{bbox}});'
+        overpassUrl += 'node["camera:direction"]({{bbox}});';
+        overpassUrl += 'node["advertising"]({{bbox}});';
+        overpassUrl += 'node[traffic_sign][direction][direction!~"^(forward|backward)$"]({{bbox}});';
         overpassUrl += ')';
         overpassUrl += ';out body center qt;';
 
@@ -231,23 +234,32 @@
                 }
 
                 var layers = new Array();
-                if (element.tags.tourism==="viewpoint") layers.push(viewpoints);
-                if (element.tags.amenity==="bench") layers.push(benchs);
-                if (element.tags.amenity==="hunting_stand") layers.push(huntingstands);
-                if (element.tags.natural==="cave_entrance") layers.push(entrances);
-                if (element.tags.man_made==="adit") layers.push(entrances);
+                if (element.tags.tourism === "viewpoint") layers.push(viewpoints);
+                if (element.tags.amenity === "bench") layers.push(benchs);
+                if (element.tags.amenity === "hunting_stand") layers.push(huntingstands);
+                if (element.tags.natural === "cave_entrance") layers.push(entrances);
+                if (element.tags.man_made === "adit") layers.push(entrances);
+                if (element.tags.man_made === "surveillance") layers.push(surveillances);
                 if (element.tags.advertising) layers.push(advertising);
                 if (element.tags.traffic_sign) layers.push(trafficsign);
 
                 if (layers.length==0) layers.push(map);
 
+
                 layers.forEach(function (layer) {
+
+                  var radius = defaultRadius;
+
+                  // move camera:direction to direction
+                  if ('camera:direction' in element.tags) {
+                    element.tags.direction = element.tags["camera:direction"];
+                  }
 
                   if ('direction' in element.tags) {
 
                     var directions = element.tags.direction.split(/; ?/);
-
                     directions.forEach(function (direction) {
+
                       if (/^(0-359|0-360)$/.test(direction)) {
                         L.circle([lat, lon], {radius: radius, color: "#008000", fillColor: "#008000", fillOpacity: 0.6}).bindPopup(popupContent(element, '360°')).addTo(layer);
 

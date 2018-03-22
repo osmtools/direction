@@ -9,6 +9,7 @@ displays the [direction](https://wiki.openstreetmap.org/wiki/Key:direction) valu
 * [man_made=adit](https://wiki.openstreetmap.org/wiki/Tag:man_made%3Dadit)
 * [advertising](https://wiki.openstreetmap.org/wiki/Key:advertising)
 * [traffic_sign](https://wiki.openstreetmap.org/wiki/Key:traffic_sign) (prefiltered to direction!=forward/backward)
+* [camera:direction](https://wiki.openstreetmap.org/wiki/Proposed_features/Extended_tags_for_Key:Surveillance#Camera)
 
 colours:
 
