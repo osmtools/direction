@@ -100,6 +100,8 @@
 			center: mappos.center,
 			zoom: mappos.zoom
 		});
+		map.attributionControl.setPrefix(
+			'<a href="http://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> | <a href="https://github.com/osmtools/direction" title="Repository and Readme on GitHub">GitHub</a> | <a id="permalink" href="">Permalink</a>');
 		//map.locate({setView: true, maxZoom: 15});
 		L.Permalink.setup(map);
 		L.control.layers(baseLayers, overlayLayers, {
@@ -348,6 +350,7 @@
 
 		var moveEnd = function() {
 			loadPois();
+			$("#permalink").attr("href", location.href);
 		};
 
 		map.on('moveend', moveEnd);
